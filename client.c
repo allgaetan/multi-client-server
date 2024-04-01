@@ -12,7 +12,7 @@
 #define MAX_MESSAGE_SIZE 512
 
 int main(int argc, char *argv[]) {
-
+    // Variable declaration
     int socketfd; // Socket file descriptor (-1 if socket can't be read)
     int connection; // Connection variable (-1 if connection failed)
     int sending; // Variable for sending message (-1 if sending failed)
@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in server_address; // Server address
     struct hostent* server; // Server host
     char message[MAX_MESSAGE_SIZE]; // Message buffer
-    
+
     // Takes as an argument and parses hostname:port 
     char *hostname, *temp; 
     unsigned int port;
@@ -33,21 +33,26 @@ int main(int argc, char *argv[]) {
     }
     fprintf(stderr, "Connection to %s:%d\n", hostname, port);
 
-    socketfd = socket(AF_INET, SOCK_STREAM, 0); // Creates a TCP socket
+    // Creates a TCP socket
+    socketfd = socket(AF_INET, SOCK_STREAM, 0); 
     if (socketfd == -1) {
         perror("Socket error\n");
         return 1;
     }
-    server = gethostbyname(hostname); // Gets host information
+
+    // Gets host information
+    server = gethostbyname(hostname); 
     if (server == NULL) {
         perror("Host error\n");
         return 2;
     }
+
     // Sets the fields of server_address
     bzero(&server_address, sizeof(server_address));
     server_address.sin_family = AF_INET;
     bcopy(server->h_addr, &server_address.sin_addr.s_addr, server->h_length);
     server_address.sin_port = htons(port);
+
     // Try connection
     connection = connect(socketfd, (struct sockaddr *) &server_address, sizeof(server_address));
     if (connection == -1) {
@@ -56,16 +61,20 @@ int main(int argc, char *argv[]) {
     }
     fprintf(stderr, "Succesfully connected to %s:%d\n", hostname, port);
 
+    // Communication loop
     while(1) {
+        // Initialization
         printf("Enter message : ");
         bzero(message, MAX_MESSAGE_SIZE);
-        fgets(message, MAX_MESSAGE_SIZE - 1, stdin);
+        fgets(message, MAX_MESSAGE_SIZE, stdin);
+
         // Try sending the message
         sending = send(socketfd, message, strlen(message), 0);
         if (sending == -1) {
             perror("Sending error\n");
             return 4;
         }
+
         // Try receiving the message
         bzero(message, MAX_MESSAGE_SIZE);
         receiving = recv(socketfd, message, MAX_MESSAGE_SIZE - 1, 0);
