@@ -1,4 +1,4 @@
-// ETAPE 3
+// ETAPE 2
 
 #include <sys/types.h>
 #include <sys/socket.h>

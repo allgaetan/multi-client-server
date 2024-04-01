@@ -13,3 +13,4 @@ Then run the server file with no arguments and the client file with "hostname:po
 ./client localhost:1024
 ```
 Right now it is configured on the port 1024 of localhost.
+Then you can write any message in the client terminal and it will appear in the server terminal.
