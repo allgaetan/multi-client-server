@@ -1,5 +1,3 @@
-// ETAPE 1
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -47,23 +45,47 @@ int main(int argc, char *argv[]) {
 
     // Try connection
     connection = connect(fd, (struct sockaddr *) &server_address, sizeof(server_address));
-    printf("Succesfully connected to %s:%d\n", hostname, port);
+    printf("Successfully connected to %s:%d\n", hostname, port);
+
+    // Set the socket to non-blocking mode
+    fcntl(fd, F_SETFL, O_NONBLOCK);
 
     // Communication loop
     while(1) {
-        // Initialization
-        printf("Enter message : ");
-        bzero(message, MAX_MESSAGE_SIZE);
-        fgets(message, MAX_MESSAGE_SIZE, stdin);
+        // File descriptor set for select
+        fd_set readfds;
+        FD_ZERO(&readfds);
+        FD_SET(fd, &readfds);
+        FD_SET(STDIN_FILENO, &readfds);
 
-        // Try sending the message
-        sending = send(fd, message, strlen(message), 0);
+        // Wait for activity on either the socket or standard input
+        int activity = select(fd + 1, &readfds, NULL, NULL, NULL);
+        if (activity < 0) {
+            perror("Select error");
+            exit(EXIT_FAILURE);
+        }
 
-        // Try receiving the message
-        bzero(message, MAX_MESSAGE_SIZE);
-        receiving = recv(fd, message, MAX_MESSAGE_SIZE - 1, 0);
-        printf("Server : %s\n", message);
+        // If there is activity on the socket, receive message from server
+        if (FD_ISSET(fd, &readfds)) {
+            bzero(message, MAX_MESSAGE_SIZE);
+            receiving = recv(fd, message, MAX_MESSAGE_SIZE - 1, 0);
+            if (receiving > 0) {
+                printf("Server: %s\n", message);
+            } else if (receiving == 0) {
+                printf("Server disconnected\n");
+                break;
+            }
+        }
+
+        // If there is activity on standard input, send message to server
+        if (FD_ISSET(STDIN_FILENO, &readfds)) {
+            bzero(message, MAX_MESSAGE_SIZE);
+            if (fgets(message, MAX_MESSAGE_SIZE, stdin) != NULL) {
+                sending = send(fd, message, strlen(message), 0);
+            }
+        }
     }
+    
     close(fd);
     return 0;
 }

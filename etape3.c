@@ -1,4 +1,4 @@
-// ETAPE 4
+// ETAPE 3
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -77,20 +77,16 @@ int main() {
                     if (receiving <= 0) { 
                         printf("Client disconnected\n");
                         close(i); 
-                        FD_CLR(i, &mySet);
-                    } 
-                    // Try sending back the message to every client except the one that sent it
-                    for (int j=0; j<maxfd+1; j++) {
-                        if (FD_ISSET(j, &mySet) && j!=fd && j!=i) {
-                            sending = send(j, message, strlen(message), 0);
-                        } 
-                    } 
+                        FD_CLR(i, &mySet); 
+                    }
+                    
+                    // Try sending back the message
+                    sending = send(newfd, message, strlen(message), 0);
                 }
             }
         }
     }
-    for (int k=0; k<maxfd+1; k++) {
-        close(k);
-    }
+    close(newfd);
+    close(fd);
     return 0;
 }
