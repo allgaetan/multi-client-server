@@ -51,15 +51,13 @@ int main(int argc, char *argv[]) {
 
     // Communication loop
     while(1) {
-        // Initialization
+        // Sending the messages
         printf("Enter message : ");
         bzero(message, MAX_MESSAGE_SIZE);
         fgets(message, MAX_MESSAGE_SIZE, stdin);
+        sending = send(fd, message, strlen(message), 0); 
 
-        // Try sending the message
-        sending = send(fd, message, strlen(message), 0);
-
-        // Try receiving the message
+        // Receiving the messages
         bzero(message, MAX_MESSAGE_SIZE);
         receiving = recv(fd, message, MAX_MESSAGE_SIZE - 1, 0);
         printf("Server : %s\n", message);

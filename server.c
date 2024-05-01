@@ -25,8 +25,8 @@ int main() {
     struct sockaddr_in server_address; // Server address
     struct sockaddr_in client_address; // Client address
     char message[MAX_MESSAGE_SIZE]; // Message buffer
-    fd_set mySet, okSet; // 
-    int maxfd = -1; //
+    fd_set mySet, okSet; 
+    int maxfd = -1; 
     
     // Sets the fields of server_address
     bzero(&server_address, sizeof(server_address));
@@ -54,10 +54,8 @@ int main() {
 
     // Communication loop
     while(1) {
-        //
         FD_COPY(&mySet, &okSet); // okSet=mySet
         selecting = select(maxfd+1, &okSet, NULL, NULL, NULL);
-
         for (int i=0; i<maxfd+1; i++) {
             if (FD_ISSET(i, &okSet)) {
                 if (i == fd) {
@@ -72,17 +70,19 @@ int main() {
                     // Try receiving the message
                     bzero(message, MAX_MESSAGE_SIZE);
                     receiving = recv(i, message, MAX_MESSAGE_SIZE, 0);                
-                    printf("Client: %s\n", message);
                     // Client disconnected or error
                     if (receiving <= 0) { 
                         printf("Client disconnected\n");
                         close(i); 
                         FD_CLR(i, &mySet);
+                        break;
                     } 
+                    printf("Message received: %s\n", message);
                     // Try sending back the message to every client except the one that sent it
                     for (int j=0; j<maxfd+1; j++) {
                         if (FD_ISSET(j, &mySet) && j!=fd && j!=i) {
                             sending = send(j, message, strlen(message), 0);
+                            printf("Message sent: %s\n", message);
                         } 
                     } 
                 }

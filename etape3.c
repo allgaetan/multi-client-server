@@ -54,10 +54,8 @@ int main() {
 
     // Communication loop
     while(1) {
-        //
         FD_COPY(&mySet, &okSet); // okSet=mySet
         selecting = select(maxfd+1, &okSet, NULL, NULL, NULL);
-
         for (int i=0; i<maxfd+1; i++) {
             if (FD_ISSET(i, &okSet)) {
                 if (i == fd) {
@@ -79,7 +77,6 @@ int main() {
                         close(i); 
                         FD_CLR(i, &mySet); 
                     }
-                    
                     // Try sending back the message
                     sending = send(newfd, message, strlen(message), 0);
                 }
