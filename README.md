@@ -1,4 +1,4 @@
-# Toolbox 2 - Réseau : TP1 Introduction aux sockets
+# Simple multi-client echo server
 
 ## Run the project 
 
@@ -16,4 +16,3 @@ To test the multi-client functionnality, open as much terminal as you want and l
 ./client 127.0.0.1:1234
 ```
 Right now it is configured on the port 1234.
-Then you can write any message in the client terminals and it will appear in the server terminal and in all the other client terminals.
